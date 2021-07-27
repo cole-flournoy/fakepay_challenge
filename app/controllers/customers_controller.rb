@@ -6,13 +6,14 @@ require 'dotenv/load'
 class CustomersController < ApplicationController
 
   def create
-    
+    # if customer_params[]
+    binding.pry
   end
 
   private
 
   def customer_params
-    params.require(:customer)
+    params.require(:customer).permit(:id)
   end
 
 end 

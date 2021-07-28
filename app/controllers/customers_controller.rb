@@ -18,7 +18,30 @@ class CustomersController < ApplicationController
       details = customer_params[:payment]
       details[:amount] = PLANS[customer_params[:subscription][:plan].to_sym] 
       
-      purchase_post_req(details)
+      payment_response = purchase_post_req(details)
+      case payment_response['error_code']
+      when nil
+        # save token
+      when 1000001
+        "Invalid credit card number"
+      when 1000002
+        "Insufficient funds"
+      when 1000003
+        "CVV failure"
+      when 1000004
+        "Expired card"
+      when 1000005
+        "Invalid zip code"
+      when 1000006
+        # Invalid purchase amount
+      when 1000007
+        # Invalid token
+      when 1000008
+        # Invalid params: token and cc info present
+      else
+        "Unknown error"
+      end
+      
     end   
     # binding.pry
   end
@@ -44,9 +67,9 @@ def purchase_post_req(payment_details)
   req["Authorization"] = "Token token=#{ENV["FAKEPAY_TOKEN"]}"
   
   response = http.start{|http| http.request(req)}
-  token = JSON.parse(response.body)['token']
-  binding.pry
-  puts JSON.parse(response.body)
+  # token = JSON.parse(response.body)['token']
+  # binding.pry
+  return JSON.parse(response.body)
 end
 
 # purchase_post_req

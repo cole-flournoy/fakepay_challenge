@@ -1,24 +1,6 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This API is part of a code challenge for Chargify, and it is not intended to be distributed or used for any other purpose without their consent. 
 
-Things you may want to cover:
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Note: In order to protect the Fakepay API token, I've set up a `.env` file with the key I was given. In that file, the token is assigned to the variable `FAKEPAY_TOKEN`.    

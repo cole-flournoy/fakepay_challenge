@@ -13,12 +13,30 @@ class CustomersController < ApplicationController
   def create
     if existing = Customer.find_by(id: customer_params[:id])
       puts "found an existing customer"
+      details = {
+        amount: PLANS[customer_params[:subscription][:plan].to_sym],
+        token: existing.token
+      }
+      payment_response = fakepay_payment(details)
+      if payment_response['error_code'].nil?
+        puts "Payment success!"
+        puts "No new Customer created"
+        new_sub = Subscription.new(customer_params[:subscription])
+        new_sub.customer = existing
+        new_sub.save
+        puts "New Subscription Created for existing"
+        
+        render json: existing
+      else
+        binding.pry
+        # handle errors
+      end
     else
       puts "setting up your purchase"
       details = customer_params[:payment]
       details[:amount] = PLANS[customer_params[:subscription][:plan].to_sym] 
       
-      payment_response = purchase_post_req(details)
+      payment_response = fakepay_payment(details)
       case payment_response['error_code']
       when nil
         puts "Payment success!"
@@ -65,7 +83,7 @@ class CustomersController < ApplicationController
 
 end 
 
-def purchase_post_req(payment_details)
+def fakepay_payment(payment_details)
   uri = URI.parse('https://www.fakepay.io/purchase')
   
   http = Net::HTTP.new(uri.host, uri.port)
@@ -83,5 +101,5 @@ def purchase_post_req(payment_details)
   return JSON.parse(response.body)
 end
 
-# purchase_post_req
+# fakepay_payment
 # {"amount": "1000", "card_number": "4242424242424242", "cvv": "123", "expiration_month": "01", "expiration_year": "2024", "zip_code": "10045"}

@@ -21,7 +21,13 @@ class CustomersController < ApplicationController
       payment_response = purchase_post_req(details)
       case payment_response['error_code']
       when nil
-        # save token
+        token = payment_response['token']
+        new_cust = Customer.create(first_name: customer_params[:first_name], last_name: customer_params[:last_name], token: token)
+        new_sub = Subscription.new(customer_params[:subscription])
+        new_sub.customer = new_cust
+        new_sub.save
+
+        render json: new_cust
       when 1000001
         render json: {error: "Invalid credit card number"}
       when 1000002
@@ -75,5 +81,3 @@ end
 # purchase_post_req
 
 # {"amount": "1000", "card_number": "4242424242424242", "cvv": "123", "expiration_month": "01", "expiration_year": "2024", "zip_code": "10045"}
-
-# token = payment_response['token']

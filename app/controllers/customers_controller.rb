@@ -28,17 +28,17 @@ class CustomersController < ApplicationController
         
         render json: existing
       else
-        binding.pry
         # handle errors
+        fakepay_errors(payment_response['error_code'])
       end
+
     else
       puts "setting up your purchase"
       details = customer_params[:payment]
       details[:amount] = PLANS[customer_params[:subscription][:plan].to_sym] 
       
       payment_response = fakepay_payment(details)
-      case payment_response['error_code']
-      when nil
+      if payment_response['error_code'].nil? 
         puts "Payment success!"
         token = payment_response['token']
         new_cust = Customer.create(first_name: customer_params[:first_name], last_name: customer_params[:last_name], token: token)
@@ -49,27 +49,9 @@ class CustomersController < ApplicationController
         puts "New Subscription Created"
         
         render json: new_cust
-      when 1000001
-        render json: {error: "Invalid credit card number"}
-      when 1000002
-        render json: {error: "Insufficient funds"}
-      when 1000003
-        render json: {error: "CVV failure"}
-      when 1000004
-        render json: {error: "Expired card"}
-      when 1000005
-        render json: {error: "Invalid zip code"}
-      when 1000006
-        # Invalid purchase amount
-        render json: {error: "Internal error: Your payment cannot be processed at this time, but we're working on it!"}
-      when 1000007
-        # Invalid token
-        render json: {error: "Internal error: Your payment cannot be processed at this time, but we're working on it!"}
-      when 1000008
-        # Invalid params: token and cc info present
-        render json: {error: "Internal error: Your payment cannot be processed at this time, but we're working on it!"}
-      else
-        render json: {error: "Unknown error: Your payment cannot be processed at this time, but we're working on it!"}
+      else 
+        # handle errors
+        fakepay_errors(payment_response['error_code'])
       end
     end   
     # binding.pry
@@ -99,6 +81,33 @@ def fakepay_payment(payment_details)
   # token = JSON.parse(response.body)['token']
   # binding.pry
   return JSON.parse(response.body)
+end
+
+def fakepay_errors(error_code)
+  case error_code
+  when 1000001
+    binding.pry
+    render json: {error: "Invalid credit card number"}
+  when 1000002
+    render json: {error: "Insufficient funds"}
+  when 1000003
+    render json: {error: "CVV failure"}
+  when 1000004
+    render json: {error: "Expired card"}
+  when 1000005
+    render json: {error: "Invalid zip code"}
+  when 1000006
+    # Invalid purchase amount
+    render json: {error: "Internal error: Your payment cannot be processed at this time, but we're working on it!"}
+  when 1000007
+    # Invalid token
+    render json: {error: "Internal error: Your payment cannot be processed at this time, but we're working on it!"}
+  when 1000008
+    # Invalid params: token and cc info present
+    render json: {error: "Internal error: Your payment cannot be processed at this time, but we're working on it!"}
+  else
+    render json: {error: "Unknown error: Your payment cannot be processed at this time, but we're working on it!"}
+  end
 end
 
 # fakepay_payment

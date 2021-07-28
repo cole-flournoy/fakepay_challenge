@@ -12,7 +12,12 @@ def new_user_request
       'first_name': 'Cole',
       'last_name': 'Flournoy', 
       'subscription': {
-        'plan': 'silver' 
+        'plan': 'silver',
+        'addr_one': '123 Red St',
+        'addr_two': 'Suite 500',
+        'city': 'Atlanta',
+        'state': 'Georgia',
+        'zip': '12345' 
       }, 
       'payment': {
         'card_number': '4242424242424242',
@@ -37,7 +42,12 @@ def existing_user_request
     'customer': {
       'id': 1,  
       'subscription': {
-        'plan': 'bronze' 
+        'plan': 'bronze',
+        'addr_one': '123 Red St',
+        'addr_two': 'Suite 500',
+        'city': 'Atlanta',
+        'state': 'Georgia',
+        'zip': '12345' 
       } 
     }
   }.to_json
@@ -47,5 +57,5 @@ def existing_user_request
 end
 
 
-# new_user_request
+new_user_request
 # existing_user_request

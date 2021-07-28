@@ -23,15 +23,15 @@ class CustomersController < ApplicationController
       when nil
         # save token
       when 1000001
-        "Invalid credit card number"
+        render json: {error: "Invalid credit card number"}
       when 1000002
-        "Insufficient funds"
+        render json: {error: "Insufficient funds"}
       when 1000003
-        "CVV failure"
+        render json: {error: "CVV failure"}
       when 1000004
-        "Expired card"
+        render json: {error: "Expired card"}
       when 1000005
-        "Invalid zip code"
+        render json: {error: "Invalid zip code"}
       when 1000006
         # Invalid purchase amount
       when 1000007
@@ -39,7 +39,7 @@ class CustomersController < ApplicationController
       when 1000008
         # Invalid params: token and cc info present
       else
-        "Unknown error"
+        render json: {error: "Unknown error"}
       end
       
     end   
@@ -75,3 +75,5 @@ end
 # purchase_post_req
 
 # {"amount": "1000", "card_number": "4242424242424242", "cvv": "123", "expiration_month": "01", "expiration_year": "2024", "zip_code": "10045"}
+
+# token = payment_response['token']

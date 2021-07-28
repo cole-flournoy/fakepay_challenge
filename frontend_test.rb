@@ -6,7 +6,8 @@ def rails_api_test
   
   http = Net::HTTP.new(uri.host, uri.port)
   req = Net::HTTP::Post.new(uri)
-  req.body = {"amount": "1000", "card_number": "4242424242424242", "cvv": "123", "expiration_month": "01", "expiration_year": "2024", "zip_code": "10045"}.to_json
+  req.body = {'customer': {'id': '12', 'first_name': 'Cole'}}.to_json
+  req["Content-Type"] = "application/json"
 
   response = http.start{|http| http.request(req)}
   # puts JSON.parse(response.body)

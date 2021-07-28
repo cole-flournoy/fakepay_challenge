@@ -21,12 +21,15 @@ class CustomersController < ApplicationController
       payment_response = purchase_post_req(details)
       case payment_response['error_code']
       when nil
+        puts "Payment success!"
         token = payment_response['token']
         new_cust = Customer.create(first_name: customer_params[:first_name], last_name: customer_params[:last_name], token: token)
+        puts "New Customer created"
         new_sub = Subscription.new(customer_params[:subscription])
         new_sub.customer = new_cust
         new_sub.save
-
+        puts "New Subscription Created"
+        
         render json: new_cust
       when 1000001
         render json: {error: "Invalid credit card number"}
@@ -40,14 +43,16 @@ class CustomersController < ApplicationController
         render json: {error: "Invalid zip code"}
       when 1000006
         # Invalid purchase amount
+        render json: {error: "Internal error: Your payment cannot be processed at this time, but we're working on it!"}
       when 1000007
         # Invalid token
+        render json: {error: "Internal error: Your payment cannot be processed at this time, but we're working on it!"}
       when 1000008
         # Invalid params: token and cc info present
+        render json: {error: "Internal error: Your payment cannot be processed at this time, but we're working on it!"}
       else
-        render json: {error: "Unknown error"}
+        render json: {error: "Unknown error: Your payment cannot be processed at this time, but we're working on it!"}
       end
-      
     end   
     # binding.pry
   end
@@ -79,5 +84,4 @@ def purchase_post_req(payment_details)
 end
 
 # purchase_post_req
-
 # {"amount": "1000", "card_number": "4242424242424242", "cvv": "123", "expiration_month": "01", "expiration_year": "2024", "zip_code": "10045"}

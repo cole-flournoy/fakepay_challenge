@@ -1,4 +1,0 @@
-class SubscriptionsController < ApplicationController
-
-
-end 

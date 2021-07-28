@@ -12,49 +12,38 @@ class CustomersController < ApplicationController
 
   def create
     if existing = Customer.find_by(id: customer_params[:id])
-      puts "found an existing customer"
       details = {
         amount: PLANS[customer_params[:subscription][:plan].to_sym],
         token: existing.token
       }
       payment_response = fakepay_payment(details)
       if payment_response['error_code'].nil?
-        puts "Payment success!"
-        puts "No new Customer created"
         new_sub = Subscription.new(customer_params[:subscription])
         new_sub.customer = existing
         new_sub.save
-        puts "New Subscription Created for existing"
         
         render json: existing
       else
-        # handle errors
         fakepay_errors(payment_response['error_code'])
       end
 
     else
-      puts "setting up your purchase"
       details = customer_params[:payment]
       details[:amount] = PLANS[customer_params[:subscription][:plan].to_sym] 
       
       payment_response = fakepay_payment(details)
       if payment_response['error_code'].nil? 
-        puts "Payment success!"
         token = payment_response['token']
         new_cust = Customer.create(first_name: customer_params[:first_name], last_name: customer_params[:last_name], token: token)
-        puts "New Customer created"
         new_sub = Subscription.new(customer_params[:subscription])
         new_sub.customer = new_cust
         new_sub.save
-        puts "New Subscription Created"
         
         render json: new_cust
       else 
-        # handle errors
         fakepay_errors(payment_response['error_code'])
       end
     end   
-    # binding.pry
   end
 
   private
@@ -78,15 +67,12 @@ def fakepay_payment(payment_details)
   req["Authorization"] = "Token token=#{ENV["FAKEPAY_TOKEN"]}"
   
   response = http.start{|http| http.request(req)}
-  # token = JSON.parse(response.body)['token']
-  # binding.pry
   return JSON.parse(response.body)
 end
 
 def fakepay_errors(error_code)
   case error_code
   when 1000001
-    binding.pry
     render json: {error: "Invalid credit card number"}
   when 1000002
     render json: {error: "Insufficient funds"}
@@ -109,6 +95,3 @@ def fakepay_errors(error_code)
     render json: {error: "Unknown error: Your payment cannot be processed at this time, but we're working on it!"}
   end
 end
-
-# fakepay_payment
-# {"amount": "1000", "card_number": "4242424242424242", "cvv": "123", "expiration_month": "01", "expiration_year": "2024", "zip_code": "10045"}
